@@ -21,6 +21,65 @@ npx skills add ./vibe-arch
 |---|---|
 | `vibe-arch` | Starting a new project, asking which framework to use, or asking for a project structure |
 
+## Usage
+
+After installing, describe the project you want to start. The agent loads the skill on its own when the request is about a new project, a framework choice or a project structure. In agents that support slash commands you can also call it by name: `/vibe-arch`.
+
+Example prompts:
+
+```text
+Start a new project: a back office for managing orders and stock, with staff roles.
+```
+
+```text
+I need a landing page for a product launch. Which stack should I use?
+```
+
+```text
+/vibe-arch API service for a mobile app, PostgreSQL, clients log in with OAuth
+```
+
+```text
+ขึ้นโปรเจกต์ใหม่ เป็นระบบจัดการร้านค้า มีหน้าร้านและหลังบ้าน
+```
+
+What a session looks like:
+
+```text
+You:   Start a new project: a back office for managing orders and stock.
+
+Agent: The folder is empty. A few questions, each with a default. Reply "ok" to accept all.
+       1. Users: internal staff, under 100?            (default: yes)
+       2. Own database, or an existing one?            (default: new PostgreSQL)
+       3. Roles: admin and staff?                      (default: yes)
+       4. Other clients: CLI, services, AI agents?     (default: none)
+       5. Deploy target?                               (default: Bun process in a container)
+       6. React or Vue? Pre-1.0 frameworks acceptable? (default: React, stable only)
+       7. First thing that must work?                  (default: log in and list orders)
+
+You:   ok, but we use Vue
+
+Agent: Project type: Management system · Size: single app
+       Stack: Bun · Nuxt · Drizzle + PostgreSQL · JWT/EdDSA + JWKS · Tailwind
+              · bun test · oxlint + oxfmt · container
+       Why: Vue team → Nuxt; staff roles → session auth with a dev token issuer; ...
+       Assumptions: PostgreSQL, container deploy
+       Folder structure: ...
+       Core rules: ...
+       Not included yet: queue, cache, i18n (add when ...)
+       Proceed?
+
+You:   yes
+
+Agent: (scaffolds, writes docs/architecture.md, runs `bun run check`, reports the output)
+```
+
+Tips:
+
+- Say what you already know in the first message. The skill only asks about what is missing.
+- Name a framework if you have one in mind. The skill uses it and states the trade-off once.
+- Reply "ok" to take every default. They are listed under "Assumptions" in the proposal.
+
 ## What the skill does
 
 1. Checks the target directory for anything that already exists.
