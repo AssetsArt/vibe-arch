@@ -7,6 +7,7 @@ Apply the rules that fit the project type. A landing page needs sections 1, 6 an
 - UI depends on services. Services depend on the data layer. Nothing depends upward.
 - Pure domain code (types, rules, validators) depends on nothing and is importable by all layers.
 - Server-only code never reaches the browser. Enforce it with tooling (the framework's server-only setting, a lint rule on the database driver), not by convention alone.
+- Navigation goes through the router. The root component and app shell render the router's outlet; they never choose a page with conditions or state.
 - Entry points are thin. `main.ts` or `actions.ts` reads config and composes modules. Logic lives in modules that can be tested without starting a server.
 
 ## 2. A feature, end to end

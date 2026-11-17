@@ -92,6 +92,10 @@ Tips:
 
 Every TypeScript project gets the same tooling in its first commit: `bun test`, oxlint, oxfmt, and a single `bun run check` gate. Before adding a dependency, the skill checks whether Bun already has a built-in for the job, for example `Bun.Image` before sharp.
 
+## Routing
+
+A React SPA gets React Router in its first commit. Pages are routes in one route table with real URLs; the app shell never switches pages with `if` or a state variable.
+
 ## Authentication
 
 The skill recommends JWT signed with EdDSA, public keys published as JWKS, and OAuth 2.1 for CLI, service and AI-agent clients. It never bypasses authentication during development: the full path is built from the first protected route, and a dev token issuer signs real tokens for real seeded users.

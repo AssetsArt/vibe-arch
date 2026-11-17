@@ -53,14 +53,27 @@ How to apply it:
 | [Brust](https://brust.dev/) (React compiled ahead of time, Rust server, Bun loaders, Elysia actions) | React team, Bun-first, first-load speed matters, the team accepts a pre-1.0 framework. Good for storefronts, content sites, back offices and static marketing sites (static build target). | Pre-1.0. Pin the exact version, read release notes before upgrading, and keep a `docs/framework-issues.md` log of workarounds. |
 | [Next.js](https://nextjs.org/) | React team that needs a stable, widely known framework, a large ecosystem of integrations, or a host built around it. | Run and install it with Bun. Keep server-only code out of client components. |
 | [Nuxt](https://nuxt.com/) | The team writes Vue. | Same layering rules apply; use Bun to install and run. |
-| Plain [React](https://react.dev/) SPA (Vite) | Internal tool behind login where SEO and first-load speed do not matter, talking to a separate API. | No SSR. Needs its own API service. |
+| [React](https://react.dev/) SPA with [React Router](https://reactrouter.com/) (Vite) | Internal tool behind login where SEO and first-load speed do not matter, talking to a separate API. | No SSR. Needs its own API service. React Router goes in with the first commit, before the second screen exists. |
 
 Decision order:
 
 1. Vue team: Nuxt.
 2. React team, pre-1.0 acceptable: Brust.
 3. React team, stable only: Next.js.
-4. Internal SPA with an existing API: React + Vite.
+4. Internal SPA with an existing API: React + React Router + Vite.
+
+### Routing is never hand-rolled
+
+Every React SPA uses React Router from the first commit, even with one screen. Do not switch pages with `if`, `switch` or a `page` state variable in the app shell. That shortcut looks simpler on day one and breaks once the app is real: no URLs to share or reload, no back button, no deep links, no per-route code splitting or data loading, and auth guards scattered through one growing component. Replacing it later means touching every screen.
+
+- One route table (`routes.tsx`) built with `createBrowserRouter`; the app renders `RouterProvider`.
+- The app shell is a layout route that renders `<Outlet />`. It contains no conditions about which page is showing.
+- Every screen, including detail pages, tabs worth linking to and "not found", has its own URL.
+- Navigate with `<Link>` and `useNavigate`. List state that should survive a reload (filters, page number, selected tab) lives in the URL search params, not in component state.
+- Auth and role checks sit on layout routes or route loaders, in one place.
+- Load large routes lazily.
+
+The same rule holds in full-stack frameworks: use the framework's router and route table. Never render pages conditionally from a root component.
 
 If the user names a framework, use it. State the trade-off once and move on.
 
@@ -129,6 +142,7 @@ Details and rules are in [auth.md](auth.md).
 | Content site / storefront | Bun · Brust or Next.js or Nuxt with SSR and caching · Drizzle · Tailwind |
 | Management system | Bun · Brust or Next.js or Nuxt · Elysia actions or framework server functions · Drizzle + PostgreSQL · Tailwind + headless primitives · JWT/EdDSA session auth with a dev token issuer |
 | API service | Bun · Elysia · Drizzle + PostgreSQL · JWT/EdDSA + JWKS, OAuth 2.1 for external clients · `bun test` |
+| Internal SPA | Bun · React · React Router · Vite · Tailwind · typed client for the existing API |
 | Platform | Bun workspaces monorepo: `apps/*` for deployables, `packages/*` for shared code, version catalog at the root |
 | Mobile app | See the mobile table |
 | CLI / systems | Rust workspace, or a Bun CLI when it is glue code |

@@ -208,3 +208,42 @@ my-system/
 ```
 
 A binary crate's `main.rs` only parses arguments and calls into `lib.rs`. `common/` crates are pure and usable by all others. Wire types live in their own crate with JSON fixtures and fixture tests.
+
+## 7. React SPA (client-rendered)
+
+For an internal tool that talks to a separate API. React Router is part of the first commit.
+
+```
+my-spa/
+├── package.json  bun.lock  tsconfig.json  vite.config.ts  index.html
+├── src/
+│   ├── main.tsx          # mounts <RouterProvider router={router} />, nothing else
+│   ├── routes.tsx        # the single route table (createBrowserRouter)
+│   ├── app.css
+│   ├── layouts/          # layout routes: AppShell.tsx (nav + <Outlet />), AuthLayout.tsx
+│   ├── pages/            # one component per route, thin
+│   ├── features/<feature>/   # screens, components, model.ts, ops.ts, tests
+│   ├── components/ui/    # design-system primitives
+│   ├── api/              # the one typed client for the backend
+│   └── lib/              # pure helpers
+└── docs/architecture.md
+```
+
+```tsx
+// src/routes.tsx
+export const router = createBrowserRouter([
+  { path: '/login', element: <LoginPage /> },
+  {
+    element: <AppShell />,          // layout route: renders <Outlet />
+    loader: requireSession,         // auth guard in one place
+    children: [
+      { index: true, element: <DashboardPage /> },
+      { path: 'orders', element: <OrdersPage /> },
+      { path: 'orders/:id', element: <OrderDetailPage /> },
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+])
+```
+
+`AppShell` never decides which page to show. Adding a screen means adding a route, not an `if`. See "Routing is never hand-rolled" in [stack-selection.md](stack-selection.md).
